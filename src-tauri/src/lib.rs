@@ -1,6 +1,6 @@
 use crate::models::{AppState, OverviewData, ProcessInfo};
 use std::sync::Mutex;
-use sysinfo::System;
+use sysinfo::{Networks, System};
 use tauri::{Manager, State};
 
 mod models;
@@ -35,19 +35,31 @@ fn get_cpu_usage(state: State<AppState>) -> f32 {
 #[tauri::command]
 fn get_overview(state: State<AppState>) -> OverviewData {
     let mut sys = state.sys.lock().unwrap();
+    let mut networks = state.networks.lock().unwrap();
+
     sys.refresh_cpu_all();
+    networks.refresh(true);
+
+    let (rx, tx) = networks.iter().fold((0u64, 0u64), |(rx, tx), (_, net)| {
+        (rx + net.received(), tx + net.transmitted())
+    });
+
     OverviewData {
         cpu_usage: sys.global_cpu_usage(),
+        net_rx_kbps: rx as f64 / 1024.0 / 2.0,
+        net_tx_kbps: tx as f64 / 1024.0 / 2.0,
     }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let sys = System::new_all();
+    let networks = Networks::new_with_refreshed_list();
 
     tauri::Builder::default()
         .manage(AppState {
             sys: Mutex::new(sys),
+            networks: Mutex::new(networks),
         })
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![

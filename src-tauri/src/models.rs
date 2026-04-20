@@ -1,9 +1,10 @@
-use sysinfo::System;
-use std::sync::Mutex;
 use serde::Serialize;
+use std::sync::Mutex;
+use sysinfo::{Networks, System};
 
 pub struct AppState {
     pub sys: Mutex<System>,
+    pub networks: Mutex<Networks>,
 }
 
 #[derive(Serialize, Clone)]
@@ -17,4 +18,6 @@ pub struct ProcessInfo {
 #[derive(Serialize, Clone)]
 pub struct OverviewData {
     pub cpu_usage: f32,
+    pub net_rx_kbps: f64,
+    pub net_tx_kbps: f64,
 }

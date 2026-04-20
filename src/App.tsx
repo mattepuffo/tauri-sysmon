@@ -9,7 +9,7 @@ import {OverviewData} from "./models/OverviewData.ts";
 export default function App() {
     const [key, setKey] = createSignal('overview');
     const [processes, setProcesses] = createSignal<ProcessInfo[]>([]);
-    const [overview, setOverview] = createSignal<OverviewData>({cpu_usage: 0});
+    const [overview, setOverview] = createSignal<OverviewData>({cpu_usage: 0, net_rx_kbps: 0, net_tx_kbps: 0});
 
     let interval: number | undefined;
 
@@ -25,6 +25,7 @@ export default function App() {
         };
 
         fetchData();
+
         interval = setInterval(fetchData, 2000);
     });
 
@@ -36,7 +37,7 @@ export default function App() {
                 <div class="col">
 
                     <h4 class="mb-3">
-                        <i class="bi bi-cpu me-2"></i>Task Manager
+                        <i class="bi bi-cpu me-2"></i>Tauri Sysmon
                     </h4>
 
                     <Tabs id="controlled-tab-example"
