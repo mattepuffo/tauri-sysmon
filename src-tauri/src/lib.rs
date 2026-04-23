@@ -48,6 +48,10 @@ fn get_overview(state: State<AppState>) -> OverviewData {
         cpu_usage: sys.global_cpu_usage(),
         net_rx_kbps: rx as f64 / 1024.0 / 2.0,
         net_tx_kbps: tx as f64 / 1024.0 / 2.0,
+        ram_used_mb: sys.used_memory() as f64 / 1024.0 / 1024.0,
+        ram_total_mb: sys.total_memory() as f64 / 1024.0 / 1024.0,
+        swap_used_mb: sys.used_swap() as f64 / 1024.0 / 1024.0,
+        swap_total_mb: sys.total_swap() as f64 / 1024.0 / 1024.0,
     }
 }
 

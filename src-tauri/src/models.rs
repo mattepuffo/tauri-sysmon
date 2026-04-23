@@ -20,4 +20,8 @@ pub struct OverviewData {
     pub cpu_usage: f32,
     pub net_rx_kbps: f64,
     pub net_tx_kbps: f64,
+    pub ram_used_mb: f64,
+    pub ram_total_mb: f64,
+    pub swap_used_mb: f64,
+    pub swap_total_mb: f64,
 }

@@ -9,7 +9,15 @@ import {OverviewData} from "./models/OverviewData.ts";
 export default function App() {
     const [key, setKey] = createSignal('overview');
     const [processes, setProcesses] = createSignal<ProcessInfo[]>([]);
-    const [overview, setOverview] = createSignal<OverviewData>({cpu_usage: 0, net_rx_kbps: 0, net_tx_kbps: 0});
+    const [overview, setOverview] = createSignal<OverviewData>({
+        cpu_usage: 0,
+        net_rx_kbps: 0,
+        net_tx_kbps: 0,
+        ram_used_mb: 0,
+        ram_total_mb: 0,
+        swap_used_mb: 0,
+        swap_total_mb: 0,
+    });
 
     let interval: number | undefined;
 
