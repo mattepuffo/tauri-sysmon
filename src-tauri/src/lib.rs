@@ -36,7 +36,7 @@ fn get_cpu_usage(state: State<AppState>) -> f32 {
 fn get_overview(state: State<AppState>) -> OverviewData {
     let mut sys = state.sys.lock().unwrap();
     let mut networks = state.networks.lock().unwrap();
-    let mut disks = state.disks.lock().unwrap();
+    let disks = state.disks.lock().unwrap();
 
     sys.refresh_cpu_all();
     networks.refresh(true);
