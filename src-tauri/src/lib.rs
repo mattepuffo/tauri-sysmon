@@ -1,6 +1,6 @@
-use crate::models::{AppState, OverviewData, ProcessInfo};
+use crate::models::{AppState, DiskInfo, OverviewData, ProcessInfo};
 use std::sync::Mutex;
-use sysinfo::{Networks, System};
+use sysinfo::{Disks, Networks, System};
 use tauri::{Manager, State};
 
 mod models;
@@ -36,6 +36,7 @@ fn get_cpu_usage(state: State<AppState>) -> f32 {
 fn get_overview(state: State<AppState>) -> OverviewData {
     let mut sys = state.sys.lock().unwrap();
     let mut networks = state.networks.lock().unwrap();
+    let mut disks = state.disks.lock().unwrap();
 
     sys.refresh_cpu_all();
     networks.refresh(true);
@@ -43,6 +44,12 @@ fn get_overview(state: State<AppState>) -> OverviewData {
     let (rx, tx) = networks.iter().fold((0u64, 0u64), |(rx, tx), (_, net)| {
         (rx + net.received(), tx + net.transmitted())
     });
+
+    let disk_list = disks.iter().map(|d| DiskInfo {
+        name: d.mount_point().to_string_lossy().to_string(),
+        used_gb: (d.total_space() - d.available_space()) as f64 / 1024.0 / 1024.0 / 1024.0,
+        total_gb: d.total_space() as f64 / 1024.0 / 1024.0 / 1024.0,
+    }).collect();
 
     OverviewData {
         cpu_usage: sys.global_cpu_usage(),
@@ -52,6 +59,7 @@ fn get_overview(state: State<AppState>) -> OverviewData {
         ram_total_mb: sys.total_memory() as f64 / 1024.0 / 1024.0,
         swap_used_mb: sys.used_swap() as f64 / 1024.0 / 1024.0,
         swap_total_mb: sys.total_swap() as f64 / 1024.0 / 1024.0,
+        disks: disk_list,
     }
 }
 
@@ -59,11 +67,13 @@ fn get_overview(state: State<AppState>) -> OverviewData {
 pub fn run() {
     let sys = System::new_all();
     let networks = Networks::new_with_refreshed_list();
+    let disks = Disks::new_with_refreshed_list();
 
     tauri::Builder::default()
         .manage(AppState {
             sys: Mutex::new(sys),
             networks: Mutex::new(networks),
+            disks: Mutex::new(disks),
         })
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![

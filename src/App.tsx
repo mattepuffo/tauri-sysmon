@@ -17,6 +17,7 @@ export default function App() {
         ram_total_mb: 0,
         swap_used_mb: 0,
         swap_total_mb: 0,
+        disks: []
     });
 
     let interval: number | undefined;

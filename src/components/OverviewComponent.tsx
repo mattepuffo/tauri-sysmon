@@ -1,9 +1,19 @@
-import {createEffect, onCleanup, onMount} from "solid-js";
+import {createEffect, For, onCleanup, onMount} from "solid-js";
 import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
 import {PropsOverview} from "../models/OverviewData.ts";
 
 const MAX_POINTS = 60;
+
+const DISK_COLORS = [
+    "bg-primary",   // blu
+    "bg-success",   // verde
+    "bg-info",      // ciano
+    "bg-warning",   // giallo
+    "bg-danger",    // rosso
+    "#6f42c1",      // viola (bootstrap purple)
+    "bg-secondary", // grigio
+];
 
 function createCpuChart(container: HTMLDivElement, width: number): { plot: uPlot, times: number[], data: number[] } {
     const now = Date.now() / 1000;
@@ -259,6 +269,43 @@ export default function OverviewComponent(props: PropsOverview) {
                                 — {props.overview.swap_used_mb.toFixed(0)} / {props.overview.swap_total_mb.toFixed(0)} MB
                             </h6>
                             <div ref={swapRef}></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-1">
+                <div class="col-md-6">
+                    <div class="card bg-dark text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-hdd-stack me-2"></i>Dischi
+                            </h6>
+                            <For each={props.overview.disks}>
+                                {(disk, index) => {
+                                    const pct = () => (disk.used_gb / disk.total_gb) * 100;
+                                    const color = DISK_COLORS[index() % DISK_COLORS.length];
+                                    return (
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span class="text-truncate me-3">{disk.name}</span>
+                                                <span class="text-nowrap text-secondary">
+                                                    {disk.used_gb.toFixed(1)} / {disk.total_gb.toFixed(1)} GB
+                                                </span>
+                                            </div>
+                                            <div class="progress" style={{height: "8px"}}>
+                                                <div
+                                                    class={`progress-bar ${color.startsWith("bg-") ? color : ""}`}
+                                                    style={{
+                                                        width: `${pct()}%`,
+                                                        ...(color.startsWith("#") ? {"background-color": color} : {})
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    );
+                                }}
+                            </For>
                         </div>
                     </div>
                 </div>
