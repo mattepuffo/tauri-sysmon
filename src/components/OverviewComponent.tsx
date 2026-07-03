@@ -1,4 +1,4 @@
-import {createEffect, For, onCleanup, onMount} from "solid-js";
+import {createEffect, For, onCleanup, onMount, Show} from "solid-js";
 import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
 import {PropsOverview} from "../models/OverviewData.ts";
@@ -305,6 +305,38 @@ export default function OverviewComponent(props: PropsOverview) {
                                         </div>
                                     );
                                 }}
+                            </For>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="card bg-dark text-white">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-wifi me-2"></i>Interfacce di rete
+                            </h6>
+
+                            <h4>{props.overview.wifi_ssid}</h4>
+
+                            <For each={props.overview.net_interfaces}>
+                                {(iface) => (
+                                    <div class="mb-3">
+                                        <div class="fw-bold mb-1">
+                                            <i class="bi bi-ethernet me-1"></i>{iface.name}
+                                        </div>
+
+                                        <div class="small text-secondary">
+                                            <div>↓ {iface.rx_kbps.toFixed(1)} KB/s &nbsp; ↑ {iface.tx_kbps.toFixed(1)} KB/s</div>
+                                            <Show when={iface.ipv4}>
+                                                <div>IPv4: {iface.ipv4}</div>
+                                            </Show>
+                                            <Show when={iface.ipv6}>
+                                                <div class="text-truncate">IPv6: {iface.ipv6}</div>
+                                            </Show>
+                                        </div>
+                                    </div>
+                                )}
                             </For>
                         </div>
                     </div>

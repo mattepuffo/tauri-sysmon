@@ -1,4 +1,5 @@
 import {DiskInfo} from "./DisksInfo.ts";
+import {NetworkInterfaceInfo} from "./NetworkInterfaceInfo.ts";
 
 export interface OverviewData {
     cpu_usage: number;
@@ -9,6 +10,8 @@ export interface OverviewData {
     swap_used_mb: number;
     swap_total_mb: number;
     disks: DiskInfo[];
+    net_interfaces: NetworkInterfaceInfo[];
+    wifi_ssid: string;
 }
 
 export interface PropsOverview {

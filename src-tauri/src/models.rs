@@ -33,4 +33,15 @@ pub struct OverviewData {
     pub swap_used_mb: f64,
     pub swap_total_mb: f64,
     pub disks: Vec<DiskInfo>,
+    pub net_interfaces: Vec<NetworkInterfaceInfo>,
+    pub wifi_ssid: Option<String>,
+}
+
+#[derive(Serialize, Clone)]
+pub struct NetworkInterfaceInfo {
+    pub name: String,
+    pub rx_kbps: f64,
+    pub tx_kbps: f64,
+    pub ipv4: String,
+    pub ipv6: String,
 }

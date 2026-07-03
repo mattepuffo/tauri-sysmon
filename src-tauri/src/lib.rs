@@ -1,9 +1,11 @@
-use crate::models::{AppState, DiskInfo, OverviewData, ProcessInfo};
+use crate::models::{AppState, DiskInfo, NetworkInterfaceInfo, OverviewData, ProcessInfo};
 use std::sync::Mutex;
 use sysinfo::{Disks, Networks, System};
 use tauri::{Manager, State};
+use crate::utils::get_wifi_ssid;
 
 mod models;
+mod utils;
 
 #[tauri::command]
 fn get_processes(state: State<AppState>) -> Vec<ProcessInfo> {
@@ -39,27 +41,59 @@ fn get_overview(state: State<AppState>) -> OverviewData {
     let disks = state.disks.lock().unwrap();
 
     sys.refresh_cpu_all();
+    sys.refresh_memory();
     networks.refresh(true);
 
-    let (rx, tx) = networks.iter().fold((0u64, 0u64), |(rx, tx), (_, net)| {
-        (rx + net.received(), tx + net.transmitted())
-    });
+    let net_interfaces: Vec<NetworkInterfaceInfo> = networks
+        .iter()
+        .map(|(name, net)| {
+            let ipv4 = net
+                .ip_networks()
+                .iter()
+                .find(|ip| ip.addr.is_ipv4())
+                .map(|ip| ip.addr.to_string())
+                .unwrap_or_default();
 
-    let disk_list = disks.iter().map(|d| DiskInfo {
-        name: d.mount_point().to_string_lossy().to_string(),
-        used_gb: (d.total_space() - d.available_space()) as f64 / 1024.0 / 1024.0 / 1024.0,
-        total_gb: d.total_space() as f64 / 1024.0 / 1024.0 / 1024.0,
-    }).collect();
+            let ipv6 = net
+                .ip_networks()
+                .iter()
+                .find(|ip| ip.addr.is_ipv6())
+                .map(|ip| ip.addr.to_string())
+                .unwrap_or_default();
+
+            NetworkInterfaceInfo {
+                name: name.clone(),
+                rx_kbps: net.received() as f64 / 1024.0 / 2.0,
+                tx_kbps: net.transmitted() as f64 / 1024.0 / 2.0,
+                ipv4,
+                ipv6,
+            }
+        })
+        .collect();
+
+    let total_rx = net_interfaces.iter().fold(0.0, |acc, i| acc + i.rx_kbps);
+    let total_tx = net_interfaces.iter().fold(0.0, |acc, i| acc + i.tx_kbps);
+
+    let disk_list = disks
+        .iter()
+        .map(|d| DiskInfo {
+            name: d.mount_point().to_string_lossy().to_string(),
+            used_gb: (d.total_space() - d.available_space()) as f64 / 1024.0 / 1024.0 / 1024.0,
+            total_gb: d.total_space() as f64 / 1024.0 / 1024.0 / 1024.0,
+        })
+        .collect();
 
     OverviewData {
         cpu_usage: sys.global_cpu_usage(),
-        net_rx_kbps: rx as f64 / 1024.0 / 2.0,
-        net_tx_kbps: tx as f64 / 1024.0 / 2.0,
+        net_rx_kbps: total_rx,
+        net_tx_kbps: total_tx,
         ram_used_mb: sys.used_memory() as f64 / 1024.0 / 1024.0,
         ram_total_mb: sys.total_memory() as f64 / 1024.0 / 1024.0,
         swap_used_mb: sys.used_swap() as f64 / 1024.0 / 1024.0,
         swap_total_mb: sys.total_swap() as f64 / 1024.0 / 1024.0,
         disks: disk_list,
+        net_interfaces,
+        wifi_ssid: get_wifi_ssid(),
     }
 }
 
