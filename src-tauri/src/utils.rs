@@ -1,12 +1,16 @@
+#[cfg(target_os = "windows")]
 use windows::Networking::Connectivity::NetworkInformation;
 
 /// Funzione per visualizzare il nome  dell'SSID attivo
+///
 /// Per Windows è richiesto un crate apposito: https://github.com/microsoft/windows-rs
-///
 /// Dipendenza da aggiungere nel caso di programma multi piattaforma:
-///
+/// ```
 /// [target.'cfg(target_os = "windows")'.dependencies]
 /// windows = { version = "0.62.2", features = ["Devices_WiFi", "Networking_Connectivity"] }
+/// ```
+///
+/// macOS non testato
 pub fn get_wifi_ssid() -> Option<String> {
     #[cfg(target_os = "linux")]
     {

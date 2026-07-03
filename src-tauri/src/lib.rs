@@ -83,8 +83,6 @@ fn get_overview(state: State<AppState>) -> OverviewData {
         })
         .collect();
 
-    println!("{:?}", get_wifi_ssid());
-
     OverviewData {
         cpu_usage: sys.global_cpu_usage(),
         net_rx_kbps: total_rx,
