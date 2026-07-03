@@ -313,11 +313,11 @@ export default function OverviewComponent(props: PropsOverview) {
                 <div class="col-6">
                     <div class="card bg-dark text-white">
                         <div class="card-body">
-                            <h6 class="card-title">
+                            <h4 class="card-title">
                                 <i class="bi bi-wifi me-2"></i>Interfacce di rete
-                            </h6>
+                            </h4>
 
-                            <h4>{props.overview.wifi_ssid}</h4>
+                            <h6 class="mt-3 mb-3">{props.overview.wifi_ssid}</h6>
 
                             <For each={props.overview.net_interfaces}>
                                 {(iface) => (

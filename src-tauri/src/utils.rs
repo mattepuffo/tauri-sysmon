@@ -1,16 +1,27 @@
 pub fn get_wifi_ssid() -> Option<String> {
     #[cfg(target_os = "linux")]
     {
-        let output = std::process::Command::new("iwgetid")
+        // Prova prima iwgetid -> wireless_tools
+        let ssid = std::process::Command::new("iwgetid")
             .arg("-r")
             .output()
-            .ok()?;
-        let ssid = String::from_utf8(output.stdout).ok()?.trim().to_string();
-        if ssid.is_empty() {
-            None
-        } else {
-            Some(ssid)
-        }
+            .ok()
+            .and_then(|o| String::from_utf8(o.stdout).ok())
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty());
+
+        // Fallback su nmcli
+        std::process::Command::new("nmcli")
+            .args(["connection", "show", "--active"])
+            .output()
+            .ok()
+            .and_then(|o| String::from_utf8(o.stdout).ok())
+            .and_then(|s| {
+                s.lines()
+                    .find(|l| l.contains("wifi"))
+                    .and_then(|l| l.split_whitespace().next())
+                    .map(|s| s.trim().to_string())
+            })
     }
 
     #[cfg(target_os = "macos")]
@@ -21,7 +32,9 @@ pub fn get_wifi_ssid() -> Option<String> {
             .arg("-I")
             .output()
             .ok()?;
+
         let stdout = String::from_utf8(output.stdout).ok()?;
+
         stdout
             .lines()
             .find(|l| l.trim_start().starts_with("SSID:"))
@@ -35,7 +48,9 @@ pub fn get_wifi_ssid() -> Option<String> {
             .args(["wlan", "show", "interfaces"])
             .output()
             .ok()?;
+
         let stdout = String::from_utf8(output.stdout).ok()?;
+
         stdout
             .lines()
             .find(|l| l.trim_start().starts_with("SSID") && !l.contains("BSSID"))
