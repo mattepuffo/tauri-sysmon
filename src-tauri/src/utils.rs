@@ -15,7 +15,7 @@ pub fn get_wifi_ssid() -> Option<String> {
     #[cfg(target_os = "linux")]
     {
         // Prova prima iwgetid -> wireless_tools
-        let ssid = std::process::Command::new("iwgetid")
+        std::process::Command::new("iwgetid")
             .arg("-r")
             .output()
             .ok()
