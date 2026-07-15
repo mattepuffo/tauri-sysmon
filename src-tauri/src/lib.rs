@@ -12,13 +12,24 @@ mod utils;
 mod window_state;
 
 #[tauri::command]
-fn get_processes(state: State<AppState>) -> Vec<ProcessInfo> {
+fn get_processes(state: State<AppState>, filter: String) -> Vec<ProcessInfo> {
     let mut sys = state.sys.lock().unwrap();
     sys.refresh_all();
+
+    let current_uid = sysinfo::get_current_pid()
+        .ok()
+        .and_then(|pid| sys.process(pid))
+        .and_then(|p| p.user_id())
+        .cloned();
 
     let mut processes: Vec<ProcessInfo> = sys
         .processes()
         .values()
+        .filter(|p| match filter.as_str() {
+            "own" => p.user_id() == current_uid.as_ref(),
+            "system" => p.user_id() != current_uid.as_ref(),
+            _ => true, // "all"
+        })
         .map(|p| ProcessInfo {
             pid: p.pid().as_u32(),
             name: p.name().to_string_lossy().to_string(),

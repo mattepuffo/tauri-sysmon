@@ -9,6 +9,7 @@ import {OverviewData} from "./models/OverviewData.ts";
 export default function App() {
     const [key, setKey] = createSignal('overview');
     const [processes, setProcesses] = createSignal<ProcessInfo[]>([]);
+    const [filter, setFilter] = createSignal("all");
     const [overview, setOverview] = createSignal<OverviewData>({
         cpu_usage: 0,
         net_rx_kbps: 0,
@@ -27,7 +28,7 @@ export default function App() {
     onMount(() => {
         const fetchData = async () => {
             const [procs, ov] = await Promise.all([
-                invoke<ProcessInfo[]>("get_processes"),
+                invoke<ProcessInfo[]>("get_processes", {filter: filter()}),
                 invoke<OverviewData>("get_overview")
             ]);
 
@@ -62,7 +63,11 @@ export default function App() {
                         </Tab>
 
                         <Tab eventKey="processi" title="Processi">
-                            <ProcsTableComponent processes={processes()}/>
+                            <ProcsTableComponent
+                                processes={processes()}
+                                filter={filter()}
+                                onFilterChange={setFilter}
+                            />
                         </Tab>
                     </Tabs>
 

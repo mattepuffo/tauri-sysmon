@@ -7,4 +7,6 @@ export interface ProcessInfo {
 
 export interface PropsInfo {
     processes: ProcessInfo[];
+    filter: string;
+    onFilterChange: (filter: string) => void;
 }

@@ -24,6 +24,7 @@ sysinfo = "0.39.5"
 tauri = { version = "2.11.5", features = [] }
 tauri-plugin-opener = "2.5.4"
 tauri-plugin-store = "2.4.3"
+whoami = "2.1.2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows = { version = "0.62.2", features = ["Devices_WiFi", "Networking_Connectivity"] }
