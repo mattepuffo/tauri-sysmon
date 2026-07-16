@@ -63,11 +63,9 @@ export default function App() {
                         </Tab>
 
                         <Tab eventKey="processi" title="Processi">
-                            <ProcsTableComponent
-                                processes={processes()}
-                                filter={filter()}
-                                onFilterChange={setFilter}
-                            />
+                            <ProcsTableComponent processes={processes()}
+                                                 filter={filter()}
+                                                 onFilterChange={setFilter}/>
                         </Tab>
                     </Tabs>
 
