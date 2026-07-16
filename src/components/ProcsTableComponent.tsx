@@ -33,6 +33,7 @@ export default function ProcsTableComponent(props: PropsInfo) {
                             <th>USER</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         <For each={props.processes}>
                             {(proc) => (

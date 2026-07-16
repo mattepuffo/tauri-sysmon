@@ -9,7 +9,7 @@ export interface ProcessInfo {
     accumulated_cpu_time: number;
     cwd: string;
     root: string;
-    start_time: number;
+    start_time: string;
 }
 
 export interface PropsInfo {

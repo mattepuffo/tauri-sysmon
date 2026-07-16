@@ -1,6 +1,7 @@
 use crate::models::{AppState, DiskInfo, NetworkInterfaceInfo, OverviewData, ProcessInfo};
-use crate::utils::get_wifi_ssid;
+use crate::utils::{get_wifi_ssid, resolve_windows_username};
 use crate::window_state::WindowState;
+use chrono::DateTime;
 use serde_json::json;
 use std::sync::Mutex;
 use sysinfo::{Disks, Networks, System};
@@ -35,13 +36,26 @@ fn get_processes(state: State<AppState>, filter: String) -> Vec<ProcessInfo> {
             name: p.name().to_string_lossy().to_string(),
             cpu: p.cpu_usage(),
             memory_mb: p.memory() as f64 / 1024.0 / 1024.0,
-            user_id: p.user_id().map(|u| u.to_string()),
+            // user_id: p.user_id().map(|u| u.to_string()),
+            user_id: p.user_id().and_then(|uid| {
+                #[cfg(not(target_os = "windows"))]
+                {
+                    users::get_user_by_uid(**uid).map(|u| u.name().to_string_lossy().to_string())
+                }
+                #[cfg(target_os = "windows")]
+                {
+                    resolve_windows_username(uid)
+                    // Some(uid.to_string())
+                }
+            }),
             read_bytes: p.disk_usage().read_bytes,
             written_bytes: p.disk_usage().written_bytes,
             accumulated_cpu_time: p.accumulated_cpu_time(),
             cwd: p.cwd().map(|p| p.to_path_buf()),
             root: p.root().map(|p| p.to_path_buf()),
-            start_time: p.start_time(),
+            start_time: DateTime::from_timestamp(p.start_time() as i64, 0)
+                .map(|dt| dt.format("%d/%m %H:%M:%S").to_string())
+                .unwrap_or_default(),
         })
         .collect();
 
