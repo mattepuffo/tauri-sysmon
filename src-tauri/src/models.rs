@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use serde::Serialize;
 use std::sync::Mutex;
 use sysinfo::{Disks, Networks, System};
@@ -14,6 +15,13 @@ pub struct ProcessInfo {
     pub name: String,
     pub cpu: f32,
     pub memory_mb: f64,
+    pub user_id: Option<String>,
+    pub read_bytes: u64,
+    pub written_bytes: u64,
+    pub accumulated_cpu_time: u64,
+    pub cwd: Option<PathBuf>,
+    pub root: Option<PathBuf>,
+    pub start_time: u64,
 }
 
 #[derive(Serialize, Clone)]

@@ -24,6 +24,13 @@ export default function ProcsTableComponent(props: PropsInfo) {
                             <th>Nome</th>
                             <th>CPU %</th>
                             <th>RAM (MB)</th>
+                            <th>CPU TIME</th>
+                            <th>Read Bytes</th>
+                            <th>Written Bytes</th>
+                            <th>CWD</th>
+                            <th>ROOT</th>
+                            <th>Start Time</th>
+                            <th>USER</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -46,6 +53,13 @@ export default function ProcsTableComponent(props: PropsInfo) {
                                         </span>
                                     </td>
                                     <td>{proc.memory_mb.toFixed(1)}</td>
+                                    <td>{proc.accumulated_cpu_time}</td>
+                                    <td>{proc.read_bytes}</td>
+                                    <td>{proc.written_bytes}</td>
+                                    <td>{proc.cwd}</td>
+                                    <td>{proc.root}</td>
+                                    <td>{proc.start_time}</td>
+                                    <td>{proc.user_id}</td>
                                 </tr>
                             )}
                         </For>

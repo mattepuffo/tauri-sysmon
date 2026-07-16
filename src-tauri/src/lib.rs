@@ -35,6 +35,13 @@ fn get_processes(state: State<AppState>, filter: String) -> Vec<ProcessInfo> {
             name: p.name().to_string_lossy().to_string(),
             cpu: p.cpu_usage(),
             memory_mb: p.memory() as f64 / 1024.0 / 1024.0,
+            user_id: p.user_id().map(|u| u.to_string()),
+            read_bytes: p.disk_usage().read_bytes,
+            written_bytes: p.disk_usage().written_bytes,
+            accumulated_cpu_time: p.accumulated_cpu_time(),
+            cwd: p.cwd().map(|p| p.to_path_buf()),
+            root: p.root().map(|p| p.to_path_buf()),
+            start_time: p.start_time(),
         })
         .collect();
 

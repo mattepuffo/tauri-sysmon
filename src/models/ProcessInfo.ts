@@ -3,6 +3,13 @@ export interface ProcessInfo {
     name: string;
     cpu: number;
     memory_mb: number;
+    user_id: string;
+    read_bytes: number;
+    written_bytes: number;
+    accumulated_cpu_time: number;
+    cwd: string;
+    root: string;
+    start_time: number;
 }
 
 export interface PropsInfo {
