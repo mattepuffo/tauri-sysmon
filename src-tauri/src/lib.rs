@@ -1,5 +1,5 @@
 use crate::models::{AppState, DiskInfo, NetworkInterfaceInfo, OverviewData, ProcessInfo};
-use crate::utils::{get_wifi_ssid, resolve_windows_username};
+use crate::utils::get_wifi_ssid;
 use crate::window_state::WindowState;
 use chrono::DateTime;
 use serde_json::json;
@@ -7,6 +7,9 @@ use std::sync::Mutex;
 use sysinfo::{Disks, Networks, System};
 use tauri::{Manager, PhysicalSize, State, WindowEvent};
 use tauri_plugin_store::StoreExt;
+
+#[cfg(target_os = "windows")]
+use crate::utils::resolve_windows_username;
 
 mod models;
 mod utils;
