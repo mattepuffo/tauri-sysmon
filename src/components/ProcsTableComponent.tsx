@@ -1,4 +1,5 @@
 import {createSignal, For, Show} from "solid-js";
+import {invoke} from "@tauri-apps/api/core";
 import {PropsInfo} from "../models/ProcessInfo.ts";
 
 const DEFAULT_COLS = ["pid", "name", "cpu", "memory_mb", "user_id"];
@@ -50,6 +51,11 @@ export default function ProcsTableComponent(props: PropsInfo) {
 
     const visibleColDefs = () => COLS.filter(c => visibleCols().includes(c.name));
 
+    const killProcess = async (pid: number) => {
+        const ok = await invoke<boolean>("kill_process", {pid});
+        if (!ok) alert(`Impossibile terminare il processo ${pid}`);
+    };
+
     return (
         <div>
             <div class="mb-3 d-flex gap-2">
@@ -66,7 +72,6 @@ export default function ProcsTableComponent(props: PropsInfo) {
                             onClick={() => setDropdownOpen(!dropdownOpen())}>
                         <i class="bi bi-columns me-1"></i>Colonne
                     </button>
-
                     <Show when={dropdownOpen()}>
                         <div class="dropdown-menu show p-2"
                              style={{"min-width": "160px", position: "fixed", "z-index": 1050}}>
@@ -98,6 +103,7 @@ export default function ProcsTableComponent(props: PropsInfo) {
                             <For each={visibleColDefs()}>
                                 {(col) => <th>{col.label}</th>}
                             </For>
+                            <th style={{width: "60px"}}></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -109,6 +115,15 @@ export default function ProcsTableComponent(props: PropsInfo) {
                                             <td>{col.render ? col.render(proc) : proc[col.name]}</td>
                                         )}
                                     </For>
+                                    <td>
+                                        <button
+                                            class="btn btn-danger btn-sm py-0 px-1"
+                                            title="Termina processo"
+                                            onClick={() => killProcess(proc.pid)}
+                                        >
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                             )}
                         </For>

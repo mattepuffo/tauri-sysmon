@@ -136,6 +136,17 @@ fn get_overview(state: State<AppState>) -> OverviewData {
     }
 }
 
+#[tauri::command]
+fn kill_process(state: State<AppState>, pid: u32) -> bool {
+    let sys = state.sys.lock().unwrap();
+    
+    if let Some(process) = sys.process(sysinfo::Pid::from_u32(pid)) {
+        process.kill()
+    } else {
+        false
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let sys = System::new_all();
@@ -153,7 +164,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             get_processes,
             get_cpu_usage,
-            get_overview
+            get_overview,
+            kill_process
         ])
         .setup(|app| {
             let store = app.store("msymon_settings.json")?;
